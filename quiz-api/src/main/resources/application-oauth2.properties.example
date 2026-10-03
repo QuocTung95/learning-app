@@ -1,0 +1,10 @@
+# Copy to application-oauth2.properties and fill in your Google Web client values.
+app.oauth2.enabled=true
+app.frontend.url=http://localhost:5173
+spring.security.oauth2.client.registration.google.client-id=YOUR_CLIENT_ID.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=YOUR_CLIENT_SECRET
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/login/oauth2/code/google
+
+# Email Google de tao ADMIN dau tien (chi khi chua co ADMIN).
+app.admin.bootstrap-email=
