@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/", "/index.html", "/assets/**", "/fonts/**", "/favicon.ico", "/explore", "/login", "/forbidden", "/admin", "/admin/**", "/quizzes/*", "/attempts/*", "/attempts/*/result").permitAll()
                         .requestMatchers("/api/ping", "/api/auth/config", "/api/auth/csrf", "/oauth2/**", "/login/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categories", "/api/quizzes/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories", "/api/quizzes", "/api/quizzes/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/categories", "/api/quiz-definitions/validate").access((authentication, context) ->
                                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof OidcUser user && currentUser.isAdmin(user)))
                         .requestMatchers("/api/admin/**").access((authentication, context) ->
@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/", "/index.html", "/assets/**", "/fonts/**", "/favicon.ico", "/explore", "/login", "/login/success", "/forbidden", "/admin", "/admin/**", "/quizzes/*", "/attempts/*", "/attempts/*/result").permitAll()
                         .requestMatchers("/api/ping", "/api/auth/config", "/api/auth/csrf").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categories", "/api/quizzes/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories", "/api/quizzes", "/api/quizzes/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/categories", "/api/quiz-definitions/validate").access((authentication, context) ->
                                 new AuthorizationDecision(authentication.get().getPrincipal() instanceof OidcUser user && currentUser.isAdmin(user)))
                         .requestMatchers("/api/admin/**").access((authentication, context) ->

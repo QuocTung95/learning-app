@@ -15,6 +15,7 @@ import type {
   AdminAttemptFilters,
   AdminAttempt,
   AdminAttemptDetail,
+  PublicQuizSummary,
 } from './types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
@@ -80,6 +81,7 @@ export const api = {
   },
   logout: () => request<void>('/auth/logout', { method: 'POST' }),
   categories: () => request<Category[]>('/categories'),
+  publicQuizzes: (page: number, q: string, categoryId?: number) => request<AdminPage<PublicQuizSummary>>(`/quizzes?${new URLSearchParams({ page: String(page), q, ...(categoryId ? { categoryId: String(categoryId) } : {}) })}`),
   validateDefinition: (rawJson: string) => request<ValidationError[]>('/quiz-definitions/validate', {
     method: 'POST', body: rawJson,
   }),

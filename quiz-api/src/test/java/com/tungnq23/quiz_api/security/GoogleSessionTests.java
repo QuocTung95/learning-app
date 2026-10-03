@@ -246,6 +246,43 @@ class GoogleSessionTests {
     }
 
     @Test
+    void publicCatalogShowsOnlyPublishedQuizzesAndSupportsCategoryAndSearch() throws Exception {
+        AppUser creator = user("ADMIN");
+        Quiz published = quiz(creator);
+        quizzes.save(new Quiz(published.getCategory(), creator, "Test quiz draft"));
+        mvc.perform(get("/api/quizzes").param("categoryId", published.getCategory().getId().toString())
+                        .param("q", "Test quiz"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(published.getId()))
+                .andExpect(jsonPath("$.content[0].questionCount").value(1))
+                .andExpect(jsonPath("$.content[0].durationMinutes").value(10))
+                .andExpect(jsonPath("$.content[0].contentJson").doesNotExist())
+                .andExpect(jsonPath("$.content[0].createdBy").doesNotExist());
+        mvc.perform(get("/api/quizzes").param("categoryId", published.getCategory().getId().toString())
+                        .param("q", "No matching title"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
+    }
+
+    @Test
+    void userCanSubmitAndPracticeTheSameQuizRepeatedlyWithoutAdminGrant() throws Exception {
+        AppUser student = user("USER");
+        Quiz published = quiz(student);
+        long previousId = -1;
+        for (int i = 0; i < 3; i++) {
+            var response = mvc.perform(post("/api/quizzes/" + published.getId() + "/attempts")
+                            .with(oidcLogin().oidcUser(principal(student))).with(csrf()))
+                    .andExpect(status().isOk()).andReturn();
+            long id = json.readTree(response.getResponse().getContentAsString()).get("attemptId").longValue();
+            assertNotEquals(previousId, id);
+            previousId = id;
+            mvc.perform(post("/api/attempts/" + id + "/submit").with(oidcLogin().oidcUser(principal(student)))
+                            .with(csrf()).contentType("application/json").content("{\"q1\":\"a\"}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SUBMITTED"))
+                    .andExpect(jsonPath("$.totalScore").value(1));
+        }
+    }
+
+    @Test
     void sessionUserCanStartAndReadOwnAttemptWithoutIdentityHeader() throws Exception {
         AppUser user = user("USER");
         Quiz quiz = quiz(user);

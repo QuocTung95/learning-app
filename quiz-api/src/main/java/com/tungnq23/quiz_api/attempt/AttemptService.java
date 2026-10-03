@@ -61,9 +61,6 @@ public class AttemptService {
         if (quiz.getStatus() != QuizStatus.ACTIVE) {
             throw new AttemptException("Quiz is not active: " + quizId);
         }
-        if (attemptRepository.existsByUserIdAndQuizIdAndRetakeGrantIdIsNull(userId, quizId)) {
-            throw new AttemptException("User already has an initial attempt for this quiz");
-        }
         QuizVersion version = versionRepository.findByQuizIdAndStatus(
                 quizId, QuizVersionStatus.ACTIVE
         ).orElseThrow(() -> new AttemptException("Active quiz version not found"));

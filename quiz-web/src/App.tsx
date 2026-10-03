@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Card, Layout, Menu, Space, Tag, Typography } from 'antd'
-import { AppstoreOutlined, FileAddOutlined, LoginOutlined, LogoutOutlined, DashboardOutlined, TeamOutlined, FolderOutlined, UnorderedListOutlined, SolutionOutlined } from '@ant-design/icons'
+import { Alert, Button, Card, Layout, Menu, Space, Tag, Typography, Input, Pagination, Empty } from 'antd'
+import { AppstoreOutlined, FileAddOutlined, LoginOutlined, LogoutOutlined, DashboardOutlined, TeamOutlined, FolderOutlined, UnorderedListOutlined, SolutionOutlined, HomeOutlined, ArrowRightOutlined, ClockCircleOutlined, CheckCircleOutlined, ReloadOutlined, ReadOutlined } from '@ant-design/icons'
 import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, ApiError } from './api/client'
@@ -9,6 +9,7 @@ import { AdminDashboard, AdminQuizzesPage, AdminCategoriesPage, AdminUsersPage }
 import AdminCreatePage from './AdminCreatePage'
 import AdminAttemptsPage from './AdminAttemptsPage'
 import { ThemePicker, useAppTheme } from './AppTheme'
+import ResultPage from './ResultPage'
 
 const { Header, Sider, Content } = Layout
 function useCurrentUser() {
@@ -39,7 +40,7 @@ function App() {
     <Route path="/forbidden" element={<SimplePage title="Không có quyền truy cập" />} />
     <Route element={<AppLayout />}>
       <Route path="/" element={<HomePage adminLanding />} />
-      <Route path="/explore" element={<HomePage />} />
+      <Route path="/explore" element={<QuizCatalogPage />} />
       <Route path="/quizzes/:quizId" element={<QuizPage />} />
       <Route element={<RequireLogin />}><Route path="/attempts/:attemptId" element={<AttemptPage />} /><Route path="/attempts/:attemptId/result" element={<ResultPage />} /></Route>
       <Route path="/admin" element={<AdminGuard />}>
@@ -68,7 +69,8 @@ function AppLayout() {
     onSuccess: () => { queryClient.clear(); navigate('/login') },
   })
   const items = [
-    { key: admin ? '/explore' : '/', icon: <AppstoreOutlined />, label: <Link to={admin ? '/explore' : '/'}>Khám phá</Link> },
+    ...(!admin ? [{ key: '/', icon: <HomeOutlined />, label: <Link to="/">Trang chủ</Link> }] : []),
+    { key: '/explore', icon: <AppstoreOutlined />, label: <Link to="/explore">Khám phá</Link> },
     ...(admin ? [
       { key: '/admin', icon: <DashboardOutlined />, label: <Link to="/admin">Tổng quan quản trị</Link> },
       { key: '/admin/quizzes', icon: <UnorderedListOutlined />, label: <Link to="/admin/quizzes">Quản lý bộ đề</Link> },
@@ -158,23 +160,52 @@ function LoginPage() {
 
 function HomePage({ adminLanding = false }: { adminLanding?: boolean }) {
   const me = useCurrentUser()
-  const categories = useQuery({ queryKey: ['categories'], queryFn: api.categories })
+  const navigate = useNavigate()
   if (adminLanding && me.data?.roleCode === 'ADMIN') return <Navigate to="/admin" replace />
-  return <section>
-    <div className="hero-grid">
+  return <section className="explore-page">
+    <div className="hero-grid learning-hero">
       <div>
-        <Typography.Text className="eyebrow">BẢNG ĐIỀU KHIỂN</Typography.Text>
-        <Typography.Title>Chọn một chủ đề,<br /><span className="accent">bắt đầu một vòng học.</span></Typography.Title>
-        <Typography.Paragraph type="secondary" className="hero-copy">Mở link bộ đề được chia sẻ để bắt đầu. Bạn có thể xem các chủ đề hiện có bên dưới.</Typography.Paragraph>
+        <Typography.Text className="eyebrow">MỖI NGÀY, THÊM MỘT CHÚT TIẾN BỘ</Typography.Text>
+        <Typography.Title>Học điều mới.<br /><span className="accent">Vững thêm mỗi ngày.</span></Typography.Title>
+        <Typography.Paragraph type="secondary" className="hero-copy">Biến những phút rảnh thành cơ hội khám phá. Chọn chủ đề bạn yêu thích, thử sức với từng câu hỏi và nhìn thấy tiến bộ qua mỗi lần luyện tập.</Typography.Paragraph>
+        <Button type="primary" size="large" icon={<ArrowRightOutlined />} onClick={() => navigate('/explore')}>Khám phá bộ đề</Button>
+        <Typography.Paragraph type="secondary" className="hero-note">Làm lại thoải mái, học theo nhịp của bạn.</Typography.Paragraph>
       </div>
-      <Card className="stat-card" bordered={false}><Typography.Text type="secondary">Trạng thái kết nối</Typography.Text><Typography.Title level={2}>{categories.isSuccess ? 'Đã kết nối' : categories.isError ? 'Chưa kết nối' : 'Đang kiểm tra'}</Typography.Title><Tag color={categories.isSuccess ? 'green' : 'orange'}>Quiz API</Tag></Card>
+      <div className="learning-steps">
+        <div><ReadOutlined /><div><Typography.Text strong>Chọn điều muốn học</Typography.Text><p>Khám phá các bộ đề theo chủ đề.</p></div></div>
+        <div><CheckCircleOutlined /><div><Typography.Text strong>Thử sức từng câu</Typography.Text><p>Hoàn thành bài và nhận kết quả ngay.</p></div></div>
+        <div><ReloadOutlined /><div><Typography.Text strong>Luyện tập, tiến bộ</Typography.Text><p>Quay lại bất cứ lúc nào, không giới hạn lượt.</p></div></div>
+      </div>
     </div>
-    <Typography.Title level={3}>Danh mục</Typography.Title>
-    {categories.isLoading && <Card loading />}
-    {categories.isError && <Alert type="error" showIcon message="Không tải được category" description={(categories.error as Error).message} />}
-    <div className="category-grid">{categories.data?.map(category => <Card key={category.id} hoverable bordered={false} className="category-card"><Typography.Text className="category-code">{category.code}</Typography.Text><Typography.Title level={4}>{category.name}</Typography.Title><Typography.Text type="secondary">Mở bộ đề theo link quiz được chia sẻ.</Typography.Text></Card>)}</div>
-    {categories.isSuccess && !categories.data.length && <Card bordered={false}><Typography.Text type="secondary">Chưa có category nào trong database.</Typography.Text></Card>}
   </section>
+}
+
+function QuizCatalogPage() {
+  const categories = useQuery({ queryKey: ['categories'], queryFn: api.categories })
+  const [categoryId, setCategoryId] = useState<number>()
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(0)
+  const quizzes = useQuery({ queryKey: ['public-quizzes', page, search, categoryId], queryFn: () => api.publicQuizzes(page, search, categoryId) })
+  return (
+    <section id="quiz-catalog" className="quiz-catalog">
+      <div className="catalog-heading"><div><Typography.Title level={3}>Hôm nay bạn muốn học gì?</Typography.Title><Typography.Text type="secondary">Chọn một bộ đề và bắt đầu hành trình của bạn.</Typography.Text></div><Input.Search className="catalog-search" placeholder="Tìm tên bộ đề" aria-label="Tìm bộ đề" allowClear onSearch={value => { setSearch(value.trim()); setPage(0) }} /></div>
+      {categories.isError && <Alert className="mb-24" type="error" showIcon message="Không tải được danh mục" action={<Button onClick={() => categories.refetch()}>Thử lại</Button>} />}
+      <div className="category-chips" aria-label="Lọc theo chủ đề">
+        <Button type={categoryId === undefined ? 'primary' : 'default'} aria-pressed={categoryId === undefined} onClick={() => { setCategoryId(undefined); setPage(0) }}>Tất cả</Button>
+        {categories.data?.map(category => <Button key={category.id} type={categoryId === category.id ? 'primary' : 'default'} aria-pressed={categoryId === category.id} onClick={() => { setCategoryId(category.id); setPage(0) }}>{category.name}</Button>)}
+      </div>
+      {quizzes.isPending && <Card loading />}
+      {quizzes.isError && <Alert type="error" showIcon message="Không tải được bộ đề" description={getErrorMessage(quizzes.error)} action={<Button onClick={() => quizzes.refetch()}>Thử lại</Button>} />}
+      <div className="public-quiz-grid">{quizzes.data?.content.map(quiz => <Card key={quiz.id} className="public-quiz-card" bordered={false}>
+        <Tag>{quiz.categoryName}</Tag>
+        <Typography.Title level={4}><Link to={`/quizzes/${quiz.id}`}>{quiz.title}</Link></Typography.Title>
+        <div className="public-quiz-meta"><span><ReadOutlined /> {quiz.questionCount} câu hỏi</span><span><ClockCircleOutlined /> {quiz.durationMinutes} phút</span></div>
+        <Link className="quiz-card-link" to={`/quizzes/${quiz.id}`}>Khám phá đề <ArrowRightOutlined /></Link>
+      </Card>)}</div>
+      {quizzes.isSuccess && !quizzes.data.content.length && <Empty description={search || categoryId ? 'Chưa có bộ đề phù hợp. Thử tìm kiếm hoặc chủ đề khác nhé.' : 'Các bộ đề mới đang được chuẩn bị. Hẹn bạn quay lại sớm!'} />}
+      {quizzes.data && quizzes.data.totalElements > 12 && <Pagination className="catalog-pagination" current={page + 1} total={quizzes.data.totalElements} pageSize={12} showSizeChanger={false} onChange={value => setPage(value - 1)} />}
+    </section>
+  )
 }
 
 function QuizPage() {
@@ -186,7 +217,7 @@ function QuizPage() {
   const start = useMutation({ mutationFn: () => api.startAttempt(id), onSuccess: result => navigate(`/attempts/${result.attemptId}`) })
   if (quiz.isLoading) return <Card loading />
   if (quiz.isError || !quiz.data) return <Alert type="error" showIcon message="Không tải được bộ đề" description={getErrorMessage(quiz.error)} />
-  return <section className="narrow-page"><Typography.Text className="eyebrow">{quiz.data.categoryCode} / SCHEMA {quiz.data.schemaVersion}</Typography.Text><Typography.Title>{quiz.data.title}</Typography.Title><Typography.Paragraph type="secondary">{quiz.data.description}</Typography.Paragraph><div className="quiz-meta"><Tag>{quiz.data.durationMinutes} phút</Tag><Tag>{quiz.data.questions.length} câu hỏi</Tag></div><Card bordered={false} className="start-card"><Typography.Title level={4}>Sẵn sàng bắt đầu?</Typography.Title><Typography.Paragraph type="secondary">Deadline được server tính khi bạn bấm Start. Câu trả lời chỉ được gửi khi Submit.</Typography.Paragraph><Button type="primary" size="large" onClick={() => { if (me.data) start.mutate(); else { rememberLoginDestination(`/quizzes/${id}`); navigate('/login') } }} loading={start.isPending} disabled={me.isPending}>{me.data ? 'Bắt đầu làm bài' : 'Đăng nhập để làm bài'}</Button>{start.isError && <Alert className="mt-16" type="error" message={getErrorMessage(start.error)} />}</Card></section>
+  return <section className="narrow-page"><Typography.Text className="eyebrow">{quiz.data.categoryCode}</Typography.Text><Typography.Title>{quiz.data.title}</Typography.Title><Typography.Paragraph type="secondary">{quiz.data.description}</Typography.Paragraph><div className="quiz-meta"><Tag>{quiz.data.durationMinutes} phút</Tag><Tag>{quiz.data.questions.length} câu hỏi</Tag></div><Card bordered={false} className="start-card"><Typography.Title level={4}>Sẵn sàng bắt đầu?</Typography.Title><Typography.Paragraph type="secondary">Thời gian bắt đầu tính khi bạn vào bài. Nộp bài để xem kết quả; bạn có thể luyện tập lại bao nhiêu lần tùy thích.</Typography.Paragraph><Button type="primary" size="large" onClick={() => { if (me.data) start.mutate(); else { rememberLoginDestination(`/quizzes/${id}`); navigate('/login') } }} loading={start.isPending} disabled={me.isPending}>{me.data ? 'Bắt đầu làm bài' : 'Đăng nhập để làm bài'}</Button>{start.isError && <Alert className="mt-16" type="error" message={getErrorMessage(start.error)} />}</Card></section>
 }
 
 function AttemptPage() {
@@ -246,14 +277,6 @@ function QuestionInput({ question, value, onChange }: { question: Question; valu
   if (question.type === 'multiple_choice') { const selected = isStringArray(value) ? value : []; return <div className="option-list">{question.options.map(option => <label key={option.id} className="option-row"><input type="checkbox" checked={selected.includes(option.id)} onChange={event => { const current = selected; onChange(event.target.checked ? [...current, option.id] : current.filter(id => id !== option.id)) }} />{option.text}</label>)}</div> }
   if (question.type === 'dropdown') return <select className="answer-select" value={typeof value === 'string' ? value : ''} onChange={event => onChange(event.target.value)}><option value="">Chọn một đáp án...</option>{question.options.map(option => <option key={option.id} value={option.id}>{option.text}</option>)}</select>
   return <div className="option-list">{question.options.map(option => <label key={option.id} className="option-row"><input type="radio" name={question.id} checked={value === option.id} onChange={() => onChange(option.id)} />{option.text}</label>)}</div>
-}
-
-function ResultPage() {
-  const { attemptId } = useParams(); const id = Number(attemptId)
-  const result = useQuery({ queryKey: ['attempt', id], queryFn: () => api.attemptResult(id), enabled: Number.isFinite(id) })
-  if (result.isLoading) return <Card loading />
-  if (result.isError || !result.data) return <Alert type="error" message="Không tải được kết quả" description={getErrorMessage(result.error)} />
-  return <section className="narrow-page"><Typography.Text className="eyebrow">KẾT QUẢ ATTEMPT #{id}</Typography.Text><Typography.Title>{result.data.status === 'SUBMITTED' ? 'Bạn đã hoàn thành.' : 'Attempt chưa hoàn thành.'}</Typography.Title><Card bordered={false} className="score-card"><Typography.Text type="secondary">Tổng điểm</Typography.Text><Typography.Title className="score-value">{result.data.totalScore ?? '—'} <small>/ {result.data.maxScore}</small></Typography.Title><Tag color={result.data.status === 'SUBMITTED' ? 'green' : 'orange'}>{result.data.status}</Tag></Card><Typography.Title level={4}>Câu trả lời đã gửi</Typography.Title>{result.data.answers.map(answer => <Card key={answer.questionId} size="small" className="answer-summary"><Typography.Text strong>{answer.questionId}</Typography.Text><Typography.Text code>{answer.responseJson}</Typography.Text><Tag>{answer.pointsAwarded} điểm</Tag></Card>)}</section>
 }
 
 function SimplePage({ title }: { title: string }) { return <section className="narrow-page"><Card bordered={false}><Typography.Title>{title}</Typography.Title><Link to="/">Về trang chủ</Link></Card></section> }

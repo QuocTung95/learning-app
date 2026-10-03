@@ -123,3 +123,7 @@ Mỗi lần push thay đổi lên branch đã kết nối, Render có thể buil
 ```
 
 Thông tin Oracle đã được giữ trong file local bị Git bỏ qua `application-local.properties`. Google vẫn nằm ở `application-oauth2.properties`. Với checkout mới, sao chép hai file `.example` tương ứng rồi điền thông tin. FE dev vẫn chạy `npm run dev` trong `quiz-web` như trước.
+
+## Luyện tập không giới hạn
+
+Trang Khám phá hiển thị các bộ đề đã xuất bản; user đăng nhập có thể luyện tập nhiều lần và mỗi lần nộp vẫn được lưu riêng. Database cần chạy migration `flyway/migrations/V4__allow_unlimited_practice.sql` để bỏ index giới hạn một lượt đầu tiên. Migration giữ nguyên dữ liệu cũ và ràng buộc lượt làm lại theo quyền admin. Nếu dùng cùng database Oracle đã cập nhật ở máy phát triển, không cần chạy lại.

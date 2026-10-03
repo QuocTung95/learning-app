@@ -62,7 +62,7 @@ export default function AdminAttemptsPage() {
       { title: 'Điểm', width: 150, render: (_, row) => <Space size={6}><Typography.Text strong>{row.totalScore ?? '—'} / {row.maxScore}</Typography.Text><Tag color={row.percent !== null && row.percent >= 80 ? 'green' : 'blue'}>{row.percent ?? '—'}%</Tag></Space> },
       { title: 'Ngày nộp (VN)', dataIndex: 'submittedAt', width: 180, render: dateText },
       { title: 'Thời gian làm', width: 140, render: (_, row) => durationText(row) },
-      { title: 'Lượt', width: 90, render: (_, row) => <Tag>{row.retake ? 'Làm lại' : 'Lần đầu'}</Tag> },
+      { title: 'Lượt', width: 90, render: (_, row) => <Tag>{row.retake ? 'Làm lại' : 'Luyện tập'}</Tag> },
       { title: 'Chi tiết', width: 100, fixed: 'right', render: (_, row) => <Button size="small" onClick={() => setSelectedId(row.attemptId)}>Xem bài</Button> },
     ]} />
     <Modal title={`Chi tiết bài đã nộp #${selectedId ?? ''}`} open={selectedId !== undefined} onCancel={() => setSelectedId(undefined)} footer={null} width={1150}>
@@ -92,7 +92,7 @@ function AttemptDetail({ detail }: { detail: AdminAttemptDetail }) {
       { key: 'start', label: 'Bắt đầu (VN)', children: dateText(summary.startedAt) },
       { key: 'submitted', label: 'Nộp bài (VN)', children: dateText(summary.submittedAt) },
       { key: 'duration', label: 'Thời gian làm', children: durationText(summary) },
-      { key: 'retake', label: 'Loại lượt', children: summary.retake ? 'Làm lại' : 'Lần đầu' },
+      { key: 'retake', label: 'Loại lượt', children: summary.retake ? 'Làm lại' : 'Luyện tập' },
     ]} />
     <Table rowKey="key" dataSource={rows} pagination={false} scroll={{ x: 950 }} columns={[
       { title: 'Câu', dataIndex: 'index', width: 60 },

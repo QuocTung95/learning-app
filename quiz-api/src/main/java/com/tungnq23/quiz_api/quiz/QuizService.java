@@ -97,6 +97,22 @@ public class QuizService {
     }
 
     @Transactional(readOnly = true)
+    public AdminPage<PublicQuizSummary> listPublic(int page, String search, Long categoryId) {
+        return AdminPage.from(quizVersionRepository.searchPublic(categoryId,
+                com.tungnq23.quiz_api.admin.AdminSearch.pattern(search),
+                PageRequest.of(Math.max(0, page), 12, Sort.by("publishedAt").descending().and(Sort.by("id").descending())))
+                .map(version -> {
+                    Quiz quiz = version.getQuiz();
+                    JsonNode definition = readJson(version.getContentJson());
+                    return new PublicQuizSummary(quiz.getId(), quiz.getTitle(), quiz.getCategory().getId(),
+                            quiz.getCategory().getName(), version.getDurationMinutes(), definition.get("questions").size());
+                }));
+    }
+
+    public record PublicQuizSummary(Long id, String title, Long categoryId, String categoryName,
+            int durationMinutes, int questionCount) {}
+
+    @Transactional(readOnly = true)
     public JsonNode getPublicDefinition(Long quizId) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new QuizCreationException("Quiz not found: " + quizId));

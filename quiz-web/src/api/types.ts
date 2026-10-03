@@ -19,6 +19,15 @@ export interface Category {
   name: string
 }
 
+export interface PublicQuizSummary {
+  id: number
+  title: string
+  categoryId: number
+  categoryName: string
+  durationMinutes: number
+  questionCount: number
+}
+
 export interface ValidationError {
   path: string
   message: string
