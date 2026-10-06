@@ -74,7 +74,7 @@ export function AdminCategoriesPage() {
       {create.isError && <Alert type="error" message={errorMessage(create.error)} />}{create.isSuccess && <Alert type="success" message={`Đã thêm danh mục ${create.data.code}`} />}
     </Card>
     {categories.isError && <Alert type="error" message={errorMessage(categories.error)} />}
-    <Table rowKey="id" loading={categories.isPending} dataSource={categories.data} pagination={{ pageSize: 20, showSizeChanger: false }} columns={[{ title: 'ID', dataIndex: 'id', width: 90 }, { title: 'Mã danh mục', dataIndex: 'code' }, { title: 'Tên danh mục', dataIndex: 'name' }]} />
+    <Table rowKey="id" loading={categories.isPending} dataSource={categories.data} scroll={{ x: 550 }} pagination={{ pageSize: 20, showSizeChanger: false }} columns={[{ title: 'ID', dataIndex: 'id', width: 90 }, { title: 'Mã danh mục', dataIndex: 'code' }, { title: 'Tên danh mục', dataIndex: 'name' }]} />
   </section>
 }
 

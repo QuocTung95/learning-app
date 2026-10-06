@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Card, Layout, Menu, Space, Tag, Typography, Input, Pagination, Empty } from 'antd'
-import { AppstoreOutlined, FileAddOutlined, LoginOutlined, LogoutOutlined, DashboardOutlined, TeamOutlined, FolderOutlined, UnorderedListOutlined, SolutionOutlined, HomeOutlined, ArrowRightOutlined, ClockCircleOutlined, CheckCircleOutlined, ReloadOutlined, ReadOutlined } from '@ant-design/icons'
+import { Alert, Button, Card, Drawer, Grid, Layout, Menu, Space, Tag, Typography, Input, Pagination, Empty } from 'antd'
+import { AppstoreOutlined, FileAddOutlined, LoginOutlined, LogoutOutlined, DashboardOutlined, TeamOutlined, FolderOutlined, UnorderedListOutlined, SolutionOutlined, HomeOutlined, ArrowRightOutlined, ClockCircleOutlined, CheckCircleOutlined, ReloadOutlined, ReadOutlined, MenuOutlined } from '@ant-design/icons'
 import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, ApiError } from './api/client'
@@ -61,6 +61,9 @@ function AppLayout() {
   const navigate = useNavigate()
   const { mode } = useAppTheme()
   const [collapsed, setCollapsed] = useState(() => window.matchMedia('(max-width: 900px)').matches)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const screens = Grid.useBreakpoint()
+  useEffect(() => { setMobileMenuOpen(false) }, [location.pathname, screens.md])
   const me = useCurrentUser()
   const queryClient = useQueryClient()
   const admin = me.data?.roleCode === 'ADMIN'
@@ -80,14 +83,23 @@ function AppLayout() {
       { key: '/admin/attempts', icon: <SolutionOutlined />, label: <Link to="/admin/attempts">Bài đã nộp</Link> },
     ] : []),
   ]
+  const selectedKey = items.filter(item => item.key === '/' ? location.pathname === '/' : location.pathname === item.key || location.pathname.startsWith(item.key + '/')).sort((a, b) => b.key.length - a.key.length)[0]?.key
+  const mobileItems = admin ? [
+    { key: '/admin', icon: <DashboardOutlined />, label: 'Tổng quan' },
+    { key: '/admin/quizzes', icon: <UnorderedListOutlined />, label: 'Bộ đề' },
+    { key: '/explore', icon: <AppstoreOutlined />, label: 'Khám phá' },
+  ] : [
+    { key: '/', icon: <HomeOutlined />, label: 'Trang chủ' },
+    { key: '/explore', icon: <AppstoreOutlined />, label: 'Khám phá' },
+  ]
   return <Layout className="app-shell">
     <Sider collapsible collapsed={collapsed} collapsedWidth={64} breakpoint="lg" onBreakpoint={setCollapsed} onCollapse={setCollapsed} className="app-sider">
       <div className="brand-mark" title="Quizz App"><span className="brand-name">Quizz App</span></div>
-      <Menu theme={mode} mode="inline" selectedKeys={[location.pathname]} items={items} />
+      <Menu theme={mode} mode="inline" selectedKeys={selectedKey ? [selectedKey] : []} items={items} />
     </Sider>
     <Layout>
       <Header className="app-header">
-        <div><Typography.Text className="eyebrow">{location.pathname.startsWith('/admin') ? 'Quản trị' : 'Học tập'}</Typography.Text></div>
+        <div className="header-brand"><Link className="mobile-brand" to={admin ? '/admin' : '/'}>Quizz App</Link><Typography.Text className="eyebrow">{location.pathname.startsWith('/admin') ? 'Quản trị' : 'Học tập'}</Typography.Text></div>
         <Space>
           <ThemePicker />
           {me.data ? <><Typography.Text className="account-name">{me.data.displayName ?? me.data.email}</Typography.Text><Tag color={admin ? 'green' : 'blue'}>{me.data.roleCode}</Tag><Button type="text" icon={<LogoutOutlined />} loading={logout.isPending} onClick={() => logout.mutate()}>Đăng xuất</Button></> : <Button type="primary" icon={<LoginOutlined />} onClick={() => { rememberLoginDestination(location.pathname + location.search); navigate('/login') }}>Đăng nhập / Đăng ký</Button>}
@@ -95,6 +107,13 @@ function AppLayout() {
       </Header>
       <Content className="app-content">{logout.isError && <Alert className="mb-24" type="error" showIcon message="Chưa đăng xuất được" description={getErrorMessage(logout.error)} />}<Outlet /></Content>
     </Layout>
+    <nav className="mobile-nav" aria-label="Điều hướng chính">
+      {mobileItems.map(item => <Link key={item.key} to={item.key} className="mobile-nav-item" aria-current={selectedKey === item.key ? 'page' : undefined}>{item.icon}<span>{item.label}</span></Link>)}
+      {admin && <button type="button" className={`mobile-nav-item${selectedKey && !mobileItems.some(item => item.key === selectedKey) ? ' is-active' : ''}`} aria-label="Mở menu quản trị" aria-expanded={mobileMenuOpen} aria-controls="mobile-admin-menu" onClick={() => setMobileMenuOpen(true)}><MenuOutlined /><span>Thêm</span></button>}
+    </nav>
+    <Drawer title="Menu quản trị" placement="bottom" height="auto" className="mobile-menu-drawer" open={mobileMenuOpen && screens.md === false} onClose={() => setMobileMenuOpen(false)}>
+      <nav id="mobile-admin-menu" aria-label="Các màn quản trị"><Menu theme={mode} mode="inline" selectedKeys={selectedKey ? [selectedKey] : []} items={items} onClick={() => setMobileMenuOpen(false)} /></nav>
+    </Drawer>
   </Layout>
 }
 
@@ -254,7 +273,8 @@ function AttemptPage() {
   if (data.status !== 'IN_PROGRESS') return <Navigate to={`/attempts/${id}/result`} replace />
   const remaining = Math.max(0, new Date(data.expiresAt).getTime() - now)
   return <section className="attempt-page">
-    <div className="attempt-top"><div><Typography.Text className="eyebrow">LƯỢT LÀM BÀI #{id}</Typography.Text><Typography.Title level={2}>{definition.data?.title ?? 'Tập trung vào từng câu.'}</Typography.Title></div><Tag color={remaining > 0 ? 'green' : 'red'}>{formatRemaining(remaining)}</Tag></div>
+    <div className={`attempt-timer${remaining <= 60000 ? ' is-urgent' : ''}`}><span><ClockCircleOutlined /> Thời gian còn lại</span><strong role="timer" aria-label="Thời gian làm bài còn lại" aria-live="off">{formatRemaining(remaining)}</strong></div>
+    <div className="attempt-top"><div><Typography.Text className="eyebrow">LƯỢT LÀM BÀI #{id}</Typography.Text><Typography.Title level={2}>{definition.data?.title ?? 'Tập trung vào từng câu.'}</Typography.Title></div></div>
     <Alert className="mb-24" type="info" showIcon message="Thời gian được quyết định bởi server" description="Tải lại hoặc đóng trang sẽ mất câu trả lời chưa nộp. Thời hạn của lượt làm bài vẫn giữ nguyên." />
     {remaining <= 0 && <Alert className="mb-24" type="warning" message="Đã hết giờ. Đang kiểm tra trạng thái với server..." />}
     {definition.isLoading && <Card loading />}
@@ -263,7 +283,7 @@ function AttemptPage() {
       <div className="question-list">{definition.data?.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} value={answers[question.id]} onChange={value => setAnswers(current => ({ ...current, [question.id]: value }))} />)}</div>
     </fieldset>
     {submit.isError && <Alert className="mb-24" type="error" showIcon message="Chưa nộp được bài" description={`${getErrorMessage(submit.error)} Câu trả lời vẫn còn trên trang; bạn có thể thử lại khi còn thời gian.`} />}
-    <Button type="primary" size="large" loading={submit.isPending} onClick={() => submit.mutate()} disabled={remaining <= 0 || !definition.data}>Nộp bài</Button>
+    <Button className="attempt-submit" type="primary" size="large" loading={submit.isPending} onClick={() => submit.mutate()} disabled={remaining <= 0 || !definition.data}>Nộp bài</Button>
   </section>
 }
 

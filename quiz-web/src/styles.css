@@ -58,9 +58,9 @@ a { color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .json-editor:disabled { opacity: .7; cursor: default; }
 .app-content:has(.crm-page) { padding: 32px; }
-@media (max-width: 760px) { .crm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .crm-category-form { grid-template-columns: 1fr; gap: 0; } .app-content:has(.crm-page) { padding: 24px 16px; } .app-header .eyebrow { display: none; } }
+@media (max-width: 767px) { .crm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .crm-category-form { grid-template-columns: 1fr; gap: 0; } .app-content:has(.crm-page) { padding: 24px 16px; } .app-header .eyebrow { display: none; } }
 @media (max-width: 1000px) { .crm-editor-grid { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .hero-grid { grid-template-columns: 1fr; margin-bottom: 40px; } .app-content { padding: 32px 16px; } .app-header { padding: 0 16px !important; } .matching-row { grid-template-columns: 1fr; gap: 6px; } .answer-summary { align-items: start; flex-wrap: wrap; } }
+@media (max-width: 767px) { .hero-grid { grid-template-columns: 1fr; margin-bottom: 40px; } .app-content { padding: 32px 16px; } .app-header { padding: 0 16px !important; } .matching-row { grid-template-columns: 1fr; gap: 6px; } .answer-summary { align-items: start; flex-wrap: wrap; } }
 
 body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 input, button, select, textarea { font-family: inherit; }
@@ -180,4 +180,93 @@ input, button, select, textarea { font-family: inherit; }
 .result-response ul { padding: 0; margin: 10px 0 0; list-style: none; display: grid; gap: 8px; }
 .result-response li { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
 .result-empty-answer { color: var(--muted); font-style: italic; margin: 8px 0 0; }
-@media (max-width: 760px) { .result-score-panel { gap: 24px; padding: 24px; flex-direction: column; text-align: center; } .result-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; padding: 20px 12px; } .result-count { justify-content: flex-start; } .result-question-header { flex-direction: column; gap: 12px; } .result-question-grade { justify-content: flex-start; } .result-question .ant-card-body { padding: 20px 16px; } .result-actions .ant-btn { flex: 1 1 auto; } }
+@media (max-width: 767px) { .result-score-panel { gap: 24px; padding: 24px; flex-direction: column; text-align: center; } .result-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; padding: 20px 12px; } .result-count { justify-content: flex-start; } .result-question-header { flex-direction: column; gap: 12px; } .result-question-grade { justify-content: flex-start; } .result-question .ant-card-body { padding: 20px 16px; } .result-actions .ant-btn { flex: 1 1 auto; } }
+
+/* Shared responsive layout, including device safe areas. */
+.app-shell, .login-page { min-height: 100dvh; }
+.app-content, .app-content > section, .crm-editor-grid > *, .crm-toolbar > *, .ant-space-item { min-width: 0; }
+.mobile-nav, .mobile-brand { display: none; }
+.quiz-meta { flex-wrap: wrap; }
+.narrow-page h1, .attempt-top h2, .question-card h4, .crm-editor-help .ant-typography { overflow-wrap: anywhere; }
+.option-row { overflow-wrap: anywhere; }
+.option-row input { flex-shrink: 0; }
+.answer-select, .matching-row select { min-width: 0; max-width: 100%; padding: 10px 12px; min-height: 42px; }
+.attempt-timer { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.attempt-timer > span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.attempt-timer strong { color: var(--accent); font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.attempt-timer.is-urgent { border-color: #dc2626; }
+.attempt-timer.is-urgent strong { color: #dc2626; }
+:root[data-mode="dark"] .attempt-timer.is-urgent strong { color: #fb7185; }
+.ant-table-wrapper { min-width: 0; max-width: 100%; }
+.ant-table-content { overscroll-behavior-x: contain; }
+.ant-modal .ant-typography, .ant-descriptions-item-content { overflow-wrap: anywhere; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .app-content { padding: 32px 24px; }
+  .app-content:has(.crm-page) { padding: 24px; }
+  .crm-category-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .app-sider { display: none !important; }
+  .app-header { height: auto !important; min-height: 64px; line-height: normal !important; padding: calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 10px max(12px, env(safe-area-inset-left, 0px)) !important; }
+  .header-brand { flex: 1; }
+  .mobile-brand { display: block; color: var(--accent); font-size: 15px; font-weight: 700; white-space: nowrap; }
+  .app-header > .ant-space { gap: 4px !important; }
+  .app-header .account-name { display: none; }
+  .app-header .ant-btn { padding-inline: 8px; }
+  .appearance-controls .ant-btn { min-width: 36px; min-height: 40px; }
+  .app-content, .app-content:has(.crm-page) { padding: 24px max(16px, env(safe-area-inset-right, 0px)) calc(96px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: stretch; gap: 4px; padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); background: var(--surface); border-top: 1px solid var(--border); }
+  .mobile-nav-item { flex: 1; min-width: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 6px 4px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font: inherit; font-size: 11px; font-weight: 500; text-decoration: none; cursor: pointer; }
+  .mobile-nav-item > .anticon { font-size: 20px; }
+  .mobile-nav-item[aria-current="page"], .mobile-nav-item.is-active { color: var(--accent); background: var(--accent-soft); }
+  .mobile-nav-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .mobile-menu-drawer .ant-drawer-content-wrapper { max-height: calc(100dvh - env(safe-area-inset-top, 0px)); }
+  .mobile-menu-drawer .ant-drawer-body { padding: 8px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .mobile-menu-drawer .ant-menu { border-inline-end: 0 !important; }
+  .mobile-menu-drawer .ant-menu-item { height: 44px; line-height: 44px; }
+  .hero-grid h1, .narrow-page h1, .admin-page h1 { font-size: clamp(32px, 8vw, 48px); line-height: 1.12; }
+  .learning-hero { padding-top: 8px; gap: 24px; }
+  .learning-steps { padding: 20px; gap: 20px; }
+  .hero-copy { font-size: 15px; }
+  .public-quiz-grid, .category-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+  .public-quiz-card .ant-card-body, .question-card .ant-card-body, .start-card .ant-card-body, .crm-page .ant-card-body { padding: 20px 16px; }
+  .crm-page .ant-card-head { padding-inline: 16px; }
+  .crm-page .ant-card-head-title { white-space: normal; }
+  .crm-toolbar { gap: 12px; align-items: stretch; }
+  .crm-toolbar > .ant-space { width: 100%; }
+  .crm-toolbar > .ant-select { width: 100%; min-width: 0 !important; }
+  .crm-toolbar .ant-input-search { max-width: 100%; }
+  .crm-toolbar > .ant-space > .ant-space-item { max-width: 100%; }
+  .submission-toolbar > .ant-space { width: auto; }
+  .attempt-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filter-actions { grid-column: 1 / -1; grid-row: auto; }
+  .submission-filters { padding: 14px; }
+  .json-editor { padding: 12px; min-height: 360px; }
+  .attempt-top { margin-bottom: 16px; }
+  .attempt-top h2 { font-size: 26px; line-height: 1.3; }
+  .attempt-timer { margin-bottom: 20px; padding: 10px 12px; }
+  .attempt-submit { width: 100%; }
+  .option-row { padding: 10px 12px; min-height: 44px; }
+  .answer-input, .answer-select, .matching-row select { font-size: 16px; }
+  .app-content .ant-input, .app-content .ant-select-selection-search-input, .login-page .ant-input { font-size: 16px; }
+  .app-content .ant-select-single:not(.ant-select-sm):not(.ant-select-lg) { height: 34px; }
+  .result-detail-heading { flex-wrap: wrap; gap: 8px; }
+  .result-count { flex-wrap: wrap; gap: 6px; }
+  .result-actions .ant-btn { height: auto; min-height: 44px; white-space: normal; }
+  .ant-modal { top: 20px; max-width: calc(100vw - 24px); padding-bottom: 20px; }
+  .ant-modal .ant-modal-content { padding: 20px 16px; }
+  .login-page { position: relative; padding: calc(76px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .login-card { padding: 0; }
+  .login-card .ant-card-body { padding: 24px 20px; }
+  .login-card h1 { font-size: clamp(32px, 9vw, 44px); line-height: 1.08; }
+  .login-theme-picker { top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; }
+}
+@media (max-width: 380px) {
+  .mobile-brand { font-size: 13px; }
+  .app-header .ant-btn { font-size: 12px; padding-inline: 6px; }
+  .attempt-filter-grid { grid-template-columns: 1fr; }
+  .crm-stats { gap: 10px; }
+  .crm-stats .ant-card-body { padding: 16px 12px; }
+  .result-counts { gap: 16px 8px; }
+  .result-count > span:last-child { font-size: 12px; }
+}

@@ -70,6 +70,7 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
       components: {
         Button: { primaryShadow: 'none', defaultShadow: 'none', dangerShadow: 'none', fontWeight: 600, primaryColor: dark ? '#101318' : '#ffffff' },
         Card: { headerFontSize: 14 },
+        Select: { controlHeight: 34 },
         Table: { headerBg: accentSoft, headerColor: muted, rowHoverBg: accentSoft, cellPaddingBlock: 14 },
         Menu: { itemBg: surface, subMenuItemBg: surface, itemSelectedBg: accentSoft, itemSelectedColor: accent, itemHoverBg: accentSoft, itemHoverColor: accent, darkItemBg: surface, darkSubMenuItemBg: surface, darkItemSelectedBg: accentSoft, darkItemSelectedColor: accent, darkItemHoverBg: accentSoft, darkItemHoverColor: accent, itemBorderRadius: 6 },
         Layout: { headerBg: background, siderBg: surface, triggerBg: accentSoft, triggerColor: accent },
