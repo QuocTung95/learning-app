@@ -32,3 +32,9 @@ The frontend does not store answers, role, Google credentials, or session tokens
 ## Appearance
 
 Use the sun/moon icon to switch between light and dark modes. Use the palette icon in the header (or on the login screen) to choose one of eight accent themes: Lime, Blue, Indigo, Violet, Rose, Orange, Teal, Slate. Both mode and accent selection apply throughout the application and are stored locally as visual preferences. Each accent has a darker variant for readable text on light backgrounds; icons, links, borders, active navigation and highlights follow the selection. Inter Variable is served locally from `public/fonts`; its license is included alongside the font.
+
+## Language
+
+Use the globe button (VI / EN) in the header or on the login screen to choose Tiếng Việt or English. The choice applies to all application screens, Ant Design controls, and date/number formatting, and is saved locally. Changing language preserves the current form values and quiz answers. Quiz titles, category names, questions, answers, and JSON content stay in their original language.
+
+UI translations live in `src/i18n/en.json`, using Vietnamese source text as keys. Use `useTranslation().t` for interface text and numbered placeholders (`{0}`, `{1}`) for dynamic values. Run `npm test` to check translation coverage, parameters, preference fallback, and result formatting.

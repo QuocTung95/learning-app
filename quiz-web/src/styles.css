@@ -270,3 +270,24 @@ input, button, select, textarea { font-family: inherit; }
   .result-counts { gap: 16px 8px; }
   .result-count > span:last-child { font-size: 12px; }
 }
+
+.quiz-table-actions { flex-wrap: nowrap; white-space: nowrap; }
+.quiz-table-actions .ant-btn { width: 40px; height: 40px; padding: 0; }
+.json-action-icon { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1; }
+.json-action-icon > .anticon { font-size: 18px; }
+.json-action-icon > small { font-size: 7px; font-weight: 700; letter-spacing: .02em; }
+.language-trigger { color: var(--accent) !important; font-size: 12px; }
+.auth-label-mobile { display: none; }
+.standalone-appearance { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+@media (max-width: 767px) {
+  .auth-label { display: none; }
+  .auth-label-mobile { display: inline; }
+  .app-header .header-brand { min-width: 0; }
+  .appearance-controls { gap: 0; }
+  .appearance-controls .language-trigger { min-width: 52px; gap: 4px; font-size: 12px; }
+  .app-header .ant-btn:has(.auth-label-mobile) { gap: 4px; }
+}
+@media (max-width: 380px) {
+  .appearance-controls .ant-btn { min-width: 32px; padding-inline: 4px; }
+  .appearance-controls .language-trigger { min-width: 48px; }
+}

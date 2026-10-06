@@ -1,5 +1,8 @@
+import { LanguagePicker, useTranslation } from './i18n/LanguageProvider'
 import { createContext, useContext, useLayoutEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import enUS from 'antd/es/locale/en_US'
+import viVN from 'antd/es/locale/vi_VN'
 import { Button, ConfigProvider, Popover, Tooltip, theme } from 'antd'
 import { BgColorsOutlined, CheckOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons'
 
@@ -39,6 +42,7 @@ function readTheme(): ThemeId {
 }
 
 export function AppThemeProvider({ children }: { children: ReactNode }) {
+  const { language } = useTranslation()
   const [selected, select] = useState<ThemeId>(readTheme)
   const [mode, setMode] = useState<ColorMode>(readMode)
   const palette = appThemes.find(item => item.id === selected) ?? appThemes[0]
@@ -64,7 +68,7 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
     } catch { /* Appearance works without storage. */ }
   }, [palette, mode, accent, background, surface, text, muted, border, accentSoft])
   return <ThemeContext.Provider value={{ selected, select, mode, setMode }}>
-    <ConfigProvider theme={{
+    <ConfigProvider locale={language === 'en' ? enUS : viVN} theme={{
       algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
       token: { colorPrimary: accent, colorLink: accent, colorTextBase: text, colorTextSecondary: muted, colorBgBase: background, colorBgContainer: surface, colorBgElevated: elevated, colorBorder: border, colorBorderSecondary: border, borderRadius: 8, fontFamily, fontSize: 14, controlHeight: 36, boxShadow: 'none', boxShadowSecondary: 'none' },
       components: {
@@ -80,9 +84,10 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
 }
 
 export function ThemePicker() {
+  const { t } = useTranslation()
   const { selected, select, mode, setMode } = useAppTheme()
   const [open, setOpen] = useState(false)
-  return <div className="appearance-controls"><Tooltip title={mode === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><Button type="text" className="theme-trigger" aria-label={mode === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'} onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')} icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />} /></Tooltip><Popover trigger="click" placement="bottomRight" open={open} onOpenChange={setOpen} title="Màu giao diện" content={<div className="theme-grid">{appThemes.map(item => <button key={item.id} type="button" className="theme-option" aria-pressed={selected === item.id} aria-label={`Theme ${item.name}`} onClick={() => { select(item.id); setOpen(false) }}><span className="theme-swatch" style={{ background: mode === 'dark' ? item.color : item.lightColor, color: mode === 'dark' ? '#101318' : '#ffffff' }}>{selected === item.id && <CheckOutlined />}</span><span>{item.name}</span></button>)}</div>}>
-    <Tooltip title="Đổi màu giao diện"><Button type="text" className="theme-trigger" aria-label="Đổi màu giao diện" icon={<BgColorsOutlined />} /></Tooltip>
+  return <div className="appearance-controls"><LanguagePicker /><Tooltip title={mode === 'dark' ? t("Chuyển sang giao diện sáng") : t("Chuyển sang giao diện tối")}><Button type="text" className="theme-trigger" aria-label={mode === 'dark' ? t("Chuyển sang giao diện sáng") : t("Chuyển sang giao diện tối")} onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')} icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />} /></Tooltip><Popover trigger="click" placement="bottomRight" open={open} onOpenChange={setOpen} title={t("Màu giao diện")} content={<div className="theme-grid">{appThemes.map(item => <button key={item.id} type="button" className="theme-option" aria-pressed={selected === item.id} aria-label={t("Màu {0}", [item.name])} onClick={() => { select(item.id); setOpen(false) }}><span className="theme-swatch" style={{ background: mode === 'dark' ? item.color : item.lightColor, color: mode === 'dark' ? '#101318' : '#ffffff' }}>{selected === item.id && <CheckOutlined />}</span><span>{item.name}</span></button>)}</div>}>
+    <Tooltip title={t("Đổi màu giao diện")}><Button type="text" className="theme-trigger" aria-label={t("Đổi màu giao diện")} icon={<BgColorsOutlined />} /></Tooltip>
   </Popover></div>
 }
